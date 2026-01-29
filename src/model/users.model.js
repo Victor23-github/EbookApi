@@ -6,7 +6,6 @@ const User = db.define("User", {
   firstName: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
   lastName: {
     type: DataTypes.STRING,
@@ -29,5 +28,8 @@ const userRole = db.define("userRole", {
     allowNull: false,
   },
 });
-User.hasOne(userRole);
-export default User;
+
+User.belongsToMany(userRole, { through: "user_roles" });
+userRole.belongsToMany(User, { through: "user_roles" });
+
+export { User, userRole };

@@ -1,16 +1,16 @@
-import UserModel from "../model/users.model.js";
+import { User } from "../model/users.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 async function createUser(req, res) {
+  const DEFAULT_ROLE = "user"; // Default role for new signup
+
   const { firstName, lastName, password, email } = req.body;
 
   try {
-    if (email) {
-      const existingUser = await UserModel.findOne({ where: { email: email } });
-      if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
-      }
+    const existingUser = await User.findOne({ where: { email: email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -23,7 +23,18 @@ async function createUser(req, res) {
       email,
     });
 
-    res.status(201).json(newUser);
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: newUser.id,
+        email: newUser.email,
+        roleId: newUser.role_id,
+      },
+      JWT_SECRET,
+      { expiresIn: "24h" },
+    );
+
+    res.status(201).json({ user: newUser, token });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -32,7 +43,7 @@ async function createUser(req, res) {
 async function userLogin(req, res) {
   const { password, email } = req.body;
   try {
-    const user = await UserModel.findOne({ where: { email: email } });
+    const user = await User.findOne({ where: { email: email } });
     if (!user) {
       return res.status(404).json({ message: "user not found" });
     }
