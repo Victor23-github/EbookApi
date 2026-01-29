@@ -37,7 +37,7 @@ const addBook = async (req, res) => {
     });
     res.status(201).json(newBook);
   } catch (error) {
-    res.status(400).json({ message: "failed" + error.message });
+    res.status(400).json({ message: "Failed to create book: " + error.message });
   }
 };
 

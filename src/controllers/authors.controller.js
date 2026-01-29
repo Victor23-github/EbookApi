@@ -39,13 +39,12 @@ export const createAuthor = async (req, res) => {
 // Update author
 export const updateAuthor = async (req, res) => {
   try {
-    const updatedAuthor = await AuthorModel.updateAuthor(
-      req.params.id,
-      req.body
-    );
-    if (!updatedAuthor)
+    const author = await AuthorModel.findByPk(req.params.id);
+    if (!author) {
       return res.status(404).json({ message: "Author not found" });
+    }
 
+    const updatedAuthor = await author.update(req.body);
     return res.status(200).json(updatedAuthor);
   } catch (error) {
     return res.status(400).json({ message: error.message });
@@ -55,7 +54,7 @@ export const updateAuthor = async (req, res) => {
 // Delete author
 export const deleteAuthor = async (req, res) => {
   try {
-    const deleted = await AuthorModel.destroy(req.params.id);
+    const deleted = await AuthorModel.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ message: "Author not found" });
     return res.status(204).send();
   } catch (error) {
