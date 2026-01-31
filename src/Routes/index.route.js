@@ -9,11 +9,12 @@ import blogRoutes from "./blog.route.js";
 
 // middleware
 import { authorize } from "../middleware/auth.middleware.js";
+import { permission } from "../middleware/permission.js";
 
 const mainApp = express.Router();
 
 mainApp.use("/auth", authRoutes);
-mainApp.use("/users", usersRoutes);
+mainApp.use("/users", authorize, permission(["user"]), usersRoutes);
 mainApp.use("/dashboard", dashboardRoutes);
 mainApp.use("/authors", authorize, authorsRoutes);
 mainApp.use("/books", booksRoutes);

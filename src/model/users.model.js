@@ -22,14 +22,30 @@ const User = db.define("User", {
   },
 });
 
-const userRole = db.define("userRole", {
-  role: {
+// Define the Role model
+const Role = db.define("Role", {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 });
 
-User.belongsToMany(userRole, { through: "user_roles" });
-userRole.belongsToMany(User, { through: "user_roles" });
+// Define the junction table for many-to-many
+const UserRole = db.define("UserRole", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+});
 
-export { User, userRole };
+// Set up many-to-many association
+User.belongsToMany(Role, { through: UserRole, foreignKey: "userId" });
+Role.belongsToMany(User, { through: UserRole, foreignKey: "roleId" });
+
+export { User, Role, UserRole };
